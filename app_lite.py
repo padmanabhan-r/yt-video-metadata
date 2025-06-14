@@ -183,7 +183,12 @@ def get_all_videos_fast(youtube, channel_input):
             
             # Process videos
             for playlist_item, video_detail in zip(playlist_response['items'], videos_response['items']):
+                # Get tags and join them with commas
+                tags = video_detail['snippet'].get('tags', [])
+                tags_str = ', '.join(tags) if tags else 'No tags'
+                
                 video_data = {
+                    'Channel_Name': channel_info['title'],
                     'Title': playlist_item['snippet']['title'],
                     'Published': datetime.fromisoformat(playlist_item['snippet']['publishedAt'].replace('Z', '+00:00')).strftime('%Y-%m-%d'),
                     'Duration': parse_duration(video_detail['contentDetails']['duration']),
@@ -193,6 +198,7 @@ def get_all_videos_fast(youtube, channel_input):
                     'Likes_Formatted': format_number(int(video_detail['statistics'].get('likeCount', 0))),
                     'Comments': int(video_detail['statistics'].get('commentCount', 0)),
                     'Comments_Formatted': format_number(int(video_detail['statistics'].get('commentCount', 0))),
+                    'Tags': tags_str,
                     'Video_ID': playlist_item['snippet']['resourceId']['videoId'],
                     'URL': f"https://youtu.be/{playlist_item['snippet']['resourceId']['videoId']}"
                 }
@@ -318,19 +324,32 @@ def main():
             display_df = display_df[mask]
             st.info(f"Showing {len(display_df)} of {len(df)} videos")
         
-        # Display configuration
-        col1, col2 = st.columns(2)
+        # Add option to show tags in UI
+        col1, col2, col3 = st.columns(3)
         with col1:
             show_raw_numbers = st.checkbox("Show raw numbers", help="Display exact view/like/comment counts")
         with col2:
+            show_tags = st.checkbox("Show tags in table", help="Display video tags in the table")
+        with col3:
             rows_to_show = st.selectbox("Rows to display", [10, 25, 50, 100, "All"], index=1)
         
         # Prepare display dataframe
+        base_columns = ['Title', 'Published', 'Duration']
         if show_raw_numbers:
-            display_df = display_df[['Title', 'Published', 'Duration', 'Views', 'Likes', 'Comments', 'URL']].copy()
+            stat_columns = ['Views', 'Likes', 'Comments']
         else:
-            # Create a copy with formatted columns renamed for display
-            display_df = display_df[['Title', 'Published', 'Duration', 'Views_Formatted', 'Likes_Formatted', 'Comments_Formatted', 'URL']].copy()
+            stat_columns = ['Views_Formatted', 'Likes_Formatted', 'Comments_Formatted']
+        
+        end_columns = ['URL']
+        if show_tags:
+            end_columns = ['Tags', 'URL']
+        
+        # Select columns for display
+        display_columns = base_columns + stat_columns + end_columns
+        display_df = display_df[display_columns].copy()
+        
+        # Rename formatted columns for cleaner display
+        if not show_raw_numbers:
             display_df = display_df.rename(columns={
                 'Views_Formatted': 'Views',
                 'Likes_Formatted': 'Likes',
@@ -353,7 +372,8 @@ def main():
                 "Duration": st.column_config.TextColumn("Duration", width="small"),
                 "Views": st.column_config.TextColumn("Views", width="small"),
                 "Likes": st.column_config.TextColumn("Likes", width="small"),
-                "Comments": st.column_config.TextColumn("Comments", width="small")
+                "Comments": st.column_config.TextColumn("Comments", width="small"),
+                "Tags": st.column_config.TextColumn("Tags", width="medium")
             }
         )
 
