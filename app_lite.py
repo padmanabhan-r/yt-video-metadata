@@ -327,17 +327,15 @@ def main():
         
         # Prepare display dataframe
         if show_raw_numbers:
-            display_columns = ['Title', 'Published', 'Duration', 'Views', 'Likes', 'Comments', 'URL']
+            display_df = display_df[['Title', 'Published', 'Duration', 'Views', 'Likes', 'Comments', 'URL']].copy()
         else:
-            display_columns = ['Title', 'Published', 'Duration', 'Views_Formatted', 'Likes_Formatted', 'Comments_Formatted', 'URL']
-            # Rename columns for display
+            # Create a copy with formatted columns renamed for display
+            display_df = display_df[['Title', 'Published', 'Duration', 'Views_Formatted', 'Likes_Formatted', 'Comments_Formatted', 'URL']].copy()
             display_df = display_df.rename(columns={
                 'Views_Formatted': 'Views',
                 'Likes_Formatted': 'Likes',
                 'Comments_Formatted': 'Comments'
             })
-        
-        display_df = display_df[display_columns]
         
         # Limit rows if specified
         if rows_to_show != "All":
