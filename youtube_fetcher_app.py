@@ -21,73 +21,135 @@ st.set_page_config(
 # Custom CSS for ultra-modern mobile design
 st.markdown("""
 <style>
-/* --------------------------------------------------
-   Simple, readable palette (light-mode friendly).
-   Works fine in Streamlit dark-mode too.
----------------------------------------------------*/
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+/* ------- fonts & palette ------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 :root{
-  --primary : #3B82F6;          /* blue-500  */
-  --neutral : #111827;          /* gray-900  */
-  --neutral-light: #6B7280;     /* gray-500  */
-  --card-bg: #F9FAFB;           /* gray-50   */
+  --bg-primary:#1e1e2f;        /* page background */
+  --bg-secondary:#27293d;      /* card background (fallback) */
+  --glass-alpha:0.08;          /* glass opacity */
+  --accent-1:#4ecdc4;          /* teal */
+  --accent-2:#ff6b6b;          /* coral */
+  --txt-light:#ffffff;
+  --txt-muted:rgba(255,255,255,0.72);
 }
 
-*{font-family:'Inter',sans-serif !important;}
-#MainMenu, footer, header, .stDeployButton{display:none}
+/* ------- global tweaks ------- */
+*{font-family:'Inter',sans-serif !important;box-sizing:border-box;}
+#MainMenu,footer,header,.stDeployButton{display:none}
+.stApp{background:var(--bg-primary);min-height:100vh;}
 
-/* Page background (falls back to Streamlit default in dark mode) */
-.stApp{background:#ffffff;}
+/* ------- glass container ------- */
+.glass-container,
+.hero,
+.metric-card,
+.chart-container,
+.stDataFrame{
+  background:rgba(255,255,255,var(--glass-alpha));
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:18px;
+}
 
-/* ------------- Inputs & selects --------------- */
-.stTextInput  input,
-.stNumberInput input,
+/* ------- hero ------- */
+.hero{padding:2rem;text-align:center;margin-bottom:2rem;}
+.hero h1{
+  font-size:2.6rem;font-weight:700;margin:0;
+  background:linear-gradient(135deg,var(--accent-2),var(--accent-1));
+  -webkit-background-clip:text;color:transparent;
+}
+.hero p{margin-top:.35rem;color:var(--txt-muted);font-weight:400;}
+
+/* ------- text & number inputs ------- */
+.stTextInput  > div > div > input,
+.stNumberInput> div > div > input,
 .stSelectbox  > div > div{
-  background:#fff !important;
-  color:var(--neutral) !important;
-  border:1px solid #D1D5DB !important;   /* gray-300 */
-  border-radius:8px !important;
-  padding:.6rem .8rem !important;
+  background:#ffffff !important;          /* light bg */
+  color:#111 !important;                  /* dark text */
+  border:2px solid transparent !important;
+  border-radius:12px !important;
+  padding:.75rem 1rem !important;
+  transition:border .15s,box-shadow .15s;
 }
-.stTextInput  input:focus,
-.stNumberInput input:focus,
+.stTextInput  > div > div > input:focus,
+.stNumberInput> div > div > input:focus,
 .stSelectbox  > div > div:focus-within{
-  border-color:var(--primary) !important;
-  box-shadow:0 0 0 2px rgba(59,130,246, .35) !important; /* blue-500 @ 35% */
+  border-color:var(--accent-1) !important;
+  box-shadow:0 0 0 3px rgba(78,205,196,.35) !important;
 }
-.stTextInput input::placeholder{color:#9CA3AF !important;}  /* gray-400 */
+.stTextInput > div > div > input::placeholder{color:#666 !important;}
 
-/* ---------------- Buttons --------------------- */
+/* ------- buttons ------- */
 .stButton > button{
-  background:var(--primary) !important;
-  color:#fff !important;
-  border:none !important;
-  border-radius:8px !important;
-  padding:.6rem 1.6rem !important;
-  font-weight:600 !important;
-  transition:filter .15s;
+  background:linear-gradient(135deg,var(--accent-2),var(--accent-1));
+  color:#fff;font-weight:600;font-size:1rem;
+  border:none;border-radius:12px;padding:.85rem 2rem;
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.24);
+  transition:transform .15s,box-shadow .15s;
 }
-.stButton > button:hover{filter:brightness(0.92);}
-
-/* --------------- Metrics ---------------------- */
-.metric-row{gap:1rem}                  /* utility class below */
-.metric-card{
-  background:var(--card-bg);
-  border:1px solid #E5E7EB;            /* gray-200 */
-  border-radius:10px;
-  padding:1rem 1.2rem;
-  text-align:center;
+.stButton > button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(0,0,0,.30);
 }
-.metric-value{font-size:1.4rem;font-weight:600;color:var(--primary);}
-.metric-label{font-size:.85rem;color:var(--neutral-light);}
 
-/* --------------- Dataframe tweaks ------------- */
-.stDataFrame{border:1px solid #E5E7EB;border-radius:8px;}
-.stDataFrame table thead tr th{background:#F3F4F6;color:var(--neutral);}
+/* ------- metric cards ------- */
+.metric-card{padding:1.4rem;text-align:center;transition:transform .15s;}
+.metric-card:hover{transform:translateY(-4px);}
+.metric-value{
+  font-size:2rem;font-weight:700;margin-bottom:.4rem;
+  background:linear-gradient(135deg,var(--accent-2),var(--accent-1));
+  -webkit-background-clip:text;color:transparent;
+}
+.metric-label{color:var(--txt-muted);font-size:.85rem;font-weight:500;letter-spacing:.5px;}
 
-/* --------------- Progress & spinner ----------- */
-.stProgress > div > div > div{background:var(--primary) !important;}
-.stSpinner > div{border-top-color:var(--primary) !important;}
+/* ------- badges ------- */
+.content-badge{
+  display:inline-block;padding:.45rem 1rem;border-radius:999px;
+  font-size:.8rem;font-weight:600;letter-spacing:.7px;text-transform:uppercase;
+}
+.badge-video   {background:var(--accent-2);color:#fff;}
+.badge-short   {background:var(--accent-1);color:#fff;}
+.badge-live    {background:#ff4757;color:#fff;}
+.badge-playlist{background:#45b7d1;color:#fff;}
+
+/* ------- progress bar & spinner ------- */
+.stProgress > div > div > div{background:var(--accent-1) !important;border-radius:8px;}
+.stSpinner > div{border-top-color:var(--accent-1) !important;}
+
+/* ------- table tweaks ------- */
+.stDataFrame{border-radius:14px;}
+/* optional: tint header cells */
+.stDataFrame table>thead>tr>th{
+  background:rgba(255,255,255,.12) !important;color:var(--txt-light) !important;
+}
+
+/* ------- responsive ------- */
+@media(max-width:768px){
+  .hero h1{font-size:2.1rem;}
+  .glass-container{padding:1rem;}
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+/* ------------------------------------------------------------------
+   FIELD-LABEL COLOUR
+   ------------------------------------------------------------------
+   Applies to: st.text_input, st.number_input, st.selectbox, checkboxes,
+               radios, multiselects – basically any Streamlit widget
+               that renders a <label>.
+   ------------------------------------------------------------------*/
+label,                         /* safety net */
+.stTextInput    label,
+.stNumberInput  label,
+.stSelectbox    label,
+.stMultiSelect  label,
+.stCheckbox     > label,
+.stRadio        label {
+  color: var(--txt-light) !important;   /* #ffffff from the palette */
+  font-weight: 500 !important;          /* make it stand out a bit */
+}
 </style>
 """, unsafe_allow_html=True)
 
